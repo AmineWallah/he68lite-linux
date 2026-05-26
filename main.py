@@ -66,12 +66,12 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    
+
     args = parser.parse_args()
 
     keyboard = HE68Lite()
 
-    if args.color: keyboard.set_color(*args.color) # light blue btw
+    if args.color: keyboard.set_color(*args.color)
 
     if args.brightness is not None: keyboard.set_brightness(args.brightness)
 
