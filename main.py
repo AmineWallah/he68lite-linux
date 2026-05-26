@@ -1,5 +1,7 @@
 import usb.core
 import usb.util
+import argparse
+import sys
 
 class HE68Lite:
     def __init__(self):
@@ -56,11 +58,22 @@ class HE68Lite:
 
 
 def main():
+    parser = argparse.ArgumentParser(description='HE68Lite Keyboard Control')
+    parser.add_argument('--color', type=int, nargs=3, metavar=('R', 'G', 'B'), help='Set the keyboard color (RGB)')
+    parser.add_argument('--brightness', type=int, default=4, help='Set the keyboard brightness (0-4)')
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
+    
+    args = parser.parse_args()
+
     keyboard = HE68Lite()
 
-    keyboard.set_color(0,236,255) # light blue btw
+    if args.color: keyboard.set_color(*args.color) # light blue btw
 
-    keyboard.set_brightness(4)
+    if args.brightness is not None: keyboard.set_brightness(args.brightness)
 
     keyboard.close()
 
