@@ -41,7 +41,7 @@ python3 main.py (--flags)
 3. `ripple`
 4. `starlight`
 5. `stream`
-6. `shadow` *(Static Color)*
+6. `shadow`
 7. `mountain_wave`
 8. `sine_wave`
 9. `color_spring`
