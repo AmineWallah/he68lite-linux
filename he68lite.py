@@ -17,13 +17,23 @@ class HE68Lite:
             real_home = Path.home()
 
         # Path for user home directory
-        self.config_dir = Path.home() / ".config" / "he68lite"
+        self.config_dir = real_home / ".config" / "he68lite"
         self.config_file = self.config_dir / "state.json"
 
-        self.r = 255
-        self.g = 0
-        self.b = 0
+        # Default state
+        self.r, self.g, self.b = 255, 0 ,0
         self.brightness = 4
+        self.speed = 2
+        self.mode = 0x08
+        self.is_rainbow = False # Should be on byte 4
+
+        self.MODES = {
+            'colorful_cross': 0x03, 'wave': 0x04, 'ripple': 0x05,
+            'starlight': 0x06, 'stream': 0x07, 'shadow': 0x08,
+            'mountain_wave': 0x09, 'sine_wave': 0x0a, 'color_spring': 0x0b,
+            'flower_wave': 0x0c, 'kill_two_birds': 0x0e,
+            'circle_wave': 0x0f, 'snow_trace': 0x13
+        }
 
         # Load state from config file if exists
         self._load_state()
@@ -36,14 +46,41 @@ class HE68Lite:
         # Detach driver from interface 2
         if self.device.is_kernel_driver_active(2):
             self.device.detach_kernel_driver(2)
+    def set_mode(self, mode_input):
+        mode_keys = list(self.MODES.keys())
+        mode_values = list(self.MODES.values())
+
+        try:
+            mode_index = int(mode_input) - 1
+            if mode_index < 0 or mode_index >= len(mode_keys):
+                print(f"Invalid mode. Available modes: {', '.join(mode_keys)}")
+                return
+            else:
+                mode_value = mode_values[mode_index]
+                self.mode = mode_value
+                self._send_update()
+                return
+        except ValueError:
+            pass # If input is not a number, try to match by name
+
+        target_mode = str(mode_input).lower().replace(' ', '_')
+        if target_mode in self.MODES:
+            self.mode = self.MODES[target_mode]
+            self._send_update()
+            return
+        else:
+            print(f"Invalid mode. Available modes: {', '.join(mode_keys)}")
 
     def set_color(self, r, g, b):
-        if r < 0 or r > 255: r = 0
-        self.r = r
-        if g < 0 or g > 255: g = 0
-        self.g = g
-        if b < 0 or b > 255: b = 0
-        self.b = b
+        self.r = max(0, min(255, r))
+        self.g = max(0, min(255, g))
+        self.b = max(0, min(255, b))
+
+        self.is_rainbow = False
+        self._send_update()
+
+    def set_rainbow(self, enable=True):
+        self.is_rainbow = enable
         self._send_update()
 
     def set_brightness(self, level):
@@ -52,8 +89,18 @@ class HE68Lite:
         self.brightness = level
         self._send_update()
 
+    def set_speed(self, level):
+        self.speed = max(0, min(4, level))
+        self._send_update()
+
     def _send_update(self):
-        payload = [0x07, 0x08, 0x03, self.brightness, 0x07, self.r, self.g, self.b]
+        # Inverts the speed value to match the hardware
+        hardware_speed = 4 - self.speed
+
+        color_toggle = 0x08 if self.is_rainbow else 0x07
+        color_data = [0xFA, 0xFF, 0xFA] if self.is_rainbow else [self.r, self.g, self.b]
+
+        payload = [0x07, self.mode, hardware_speed, self.brightness, color_toggle] + color_data
 
         # Checksum so that the keyboard doesn't drop the payload
         checksum = 0xFF - (sum(payload) & 0xFF)
@@ -78,21 +125,23 @@ class HE68Lite:
         with open(self.config_file, 'w') as f:
             json.dump({
                 'color': [self.r, self.g, self.b],  # Saved as an array
-                'brightness': self.brightness
+                'brightness': self.brightness,
+                'speed': self.speed,
+                'mode': self.mode,
+                'is_rainbow': self.is_rainbow
             }, f, indent=4)
 
     def _load_state(self):
         if self.config_file.exists():
             try:
                 with open(self.config_file, 'r') as f:
-                    state = json.load(f)
+                    s = json.load(f)
 
-                    # Grab the array (defaulting to current colors if missing)
-                    saved_color = state.get('color', [self.r, self.g, self.b])
-
-                    self.r, self.g, self.b = saved_color
-
-                    self.brightness = state.get('brightness', self.brightness)
+                    self.r, self.g, self.b = s.get('color', [self.r, self.g, self.b])
+                    self.brightness = s.get('brightness', self.brightness)
+                    self.speed = s.get('speed', self.speed)
+                    self.mode = s.get('mode', self.mode)
+                    self.is_rainbow = s.get('is_rainbow', self.is_rainbow)
             except Exception:
                 pass
 
