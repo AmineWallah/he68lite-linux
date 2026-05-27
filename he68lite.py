@@ -38,8 +38,11 @@ class HE68Lite:
             self.device.detach_kernel_driver(2)
 
     def set_color(self, r, g, b):
+        if r < 0 or r > 255: r = 0
         self.r = r
+        if g < 0 or g > 255: g = 0
         self.g = g
+        if b < 0 or b > 255: b = 0
         self.b = b
         self._send_update()
 
