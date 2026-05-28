@@ -20,13 +20,6 @@ class HE68Lite:
         self.config_dir = real_home / ".config" / "he68lite"
         self.config_file = self.config_dir / "state.json"
 
-        # Default state
-        self.r, self.g, self.b = 255, 0 ,0
-        self.brightness = 4
-        self.speed = 2
-        self.mode = 0x08
-        self.is_rainbow = False # Should be on byte 4
-
         # Constants
         self.MODES = {
             'colorful_cross': 0x03, 'wave': 0x04, 'ripple': 0x05,
@@ -56,6 +49,15 @@ class HE68Lite:
             'home': 0x55, 'del': 0x56, 'pgup': 0x57, 'pgdn': 0x58,
             'up': 0x52, 'left': 0x4D, 'down': 0x53, 'right': 0x59
         }
+
+
+        # Default state
+        self.r, self.g, self.b = 255, 0 ,0
+        self.brightness = 4
+        self.speed = 2
+        self.mode = 0x08
+        self.is_rainbow = False # Should be on byte 4
+        self.actuations = {key: 2.0 for key in self.KEYS}
 
         # Load state from config file if exists
         self._load_state()
@@ -115,6 +117,56 @@ class HE68Lite:
         self.speed = max(0, min(4, level))
         self._send_update()
 
+    def set_key_actuation(self, key_name, distance_mm, save=True):
+        key_name = str(key_name).lower()
+        if key_name not in self.KEYS:
+            print(f"Invalid key name: {key_name}")
+            return
+
+        key_id = self.KEYS[key_name]
+
+        # Ensure distance is within safe range (safe_distance is an estimate for now, needs to be confirmed later on)
+        safe_distance = max(0.1, min(4.0, float(distance_mm)))
+        distance_int = round(safe_distance / 0.005)
+
+        dist_lsb = distance_int & 0xFF
+        dist_msb = (distance_int >> 8) & 0xFF
+
+        # The keyboard requires TWO reports per key update:
+        # Report 0x00 (Press Actuation) and Report 0x01 (Release/Rapid Trigger)
+        for report_type in [0x00, 0x01]:
+            payload = [0x65, report_type, 0x00, key_id, report_type, 0x00, 0x00]
+
+            # Calculate the special 7-byte checksum for magnetic switches
+            checksum = 0xFF - (sum(payload) & 0xFF)
+            payload.append(checksum)
+
+            payload.extend([dist_lsb, dist_msb])
+
+            payload += [0x00] * (64 - len(payload))
+
+            self.device.ctrl_transfer(
+                bmRequestType=0x21,
+                bRequest=0x09,
+                wValue=0x0300,
+                wIndex=0x0002,
+                data_or_wLength=payload
+            )
+
+        self.actuations[key_name] = safe_distance
+
+        if save:
+            self._save_state()
+
+        print(f"Set '{key_name.upper()}' to {safe_distance}mm")
+
+    def set_keyboard_actuation(self, distance_mm):
+        # Set actuation for all keys simultaneously
+        for key in self.KEYS:
+            self.set_key_actuation(key, distance_mm, save=False)
+
+        self._save_state()
+
     def _send_update(self):
         # Inverts the speed value to match the hardware
         hardware_speed = 4 - self.speed
@@ -146,11 +198,12 @@ class HE68Lite:
         self.config_dir.mkdir(parents=True, exist_ok=True)
         with open(self.config_file, 'w') as f:
             json.dump({
-                'color': [self.r, self.g, self.b],  # Saved as an array
+                'color': [self.r, self.g, self.b],
                 'brightness': self.brightness,
                 'speed': self.speed,
                 'mode': self.mode,
-                'is_rainbow': self.is_rainbow
+                'is_rainbow': self.is_rainbow,
+                'actuations': self.actuations
             }, f, indent=4)
 
     def _load_state(self):
@@ -164,6 +217,7 @@ class HE68Lite:
                     self.speed = s.get('speed', self.speed)
                     self.mode = s.get('mode', self.mode)
                     self.is_rainbow = s.get('is_rainbow', self.is_rainbow)
+                    self.actuations = s.get('actuations', self.actuations)  # <-- Added this line
             except Exception:
                 pass
 
