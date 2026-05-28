@@ -6,7 +6,7 @@ Basic linux driver to interact with the Epomaker HE68 Lite keyboard considering 
 
 
 ## Dependencies
-You will need to install **python3** from the official website for Windows users, or your preferred package manager for everyone else.
+You will need to install **python3** from your preferred package manager.
 
 Once that is done, you will also need **pyusb** for the script to be able to communicate with the keyboard.
 
@@ -41,7 +41,7 @@ python3 main.py (--flags)
 3. `ripple`
 4. `starlight`
 5. `stream`
-6. `shadow` *(Static Color)*
+6. `shadow`
 7. `mountain_wave`
 8. `sine_wave`
 9. `color_spring`
