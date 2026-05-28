@@ -27,12 +27,34 @@ class HE68Lite:
         self.mode = 0x08
         self.is_rainbow = False # Should be on byte 4
 
+        # Constants
         self.MODES = {
             'colorful_cross': 0x03, 'wave': 0x04, 'ripple': 0x05,
             'starlight': 0x06, 'stream': 0x07, 'shadow': 0x08,
             'mountain_wave': 0x09, 'sine_wave': 0x0a, 'color_spring': 0x0b,
             'flower_wave': 0x0c, 'kill_two_birds': 0x0e,
             'circle_wave': 0x0f, 'snow_trace': 0x13
+        }
+
+        self.KEYS = {
+            # Take note that there is a 'ghost' 6th row hence why some numbers are skipped
+            'esc': 0x01, 'tab': 0x02, 'caps': 0x03, 'lshift': 0x04, 'lctrl': 0x05,
+            '1': 0x07, 'q': 0x08, 'a': 0x09, 'z': 0x0A, 'win': 0x0B,
+            '2': 0x0D, 'w': 0x0E, 's': 0x0F, 'x': 0x10, 'lalt': 0x11,
+            '3': 0x13, 'e': 0x14, 'd': 0x15, 'c': 0x16,
+            '4': 0x19, 'r': 0x1A, 'f': 0x1B, 'v': 0x1C,
+            '5': 0x1F, 't': 0x20, 'g': 0x21, 'b': 0x22,
+            '6': 0x25, 'y': 0x26, 'h': 0x27, 'n': 0x28, 'space': 0x29,
+            '7': 0x2B, 'u': 0x2C, 'j': 0x2D, 'm': 0x2E,
+            '8': 0x31, 'i': 0x32, 'k': 0x33, ',': 0x34,
+            '9': 0x37, 'o': 0x38, 'l': 0x39, '.': 0x3A, 'ralt': 0x3B,
+            '0': 0x3D, 'p': 0x3E, ';': 0x3F, '/': 0x40,
+            '-': 0x43, '[': 0x44, "'": 0x45,
+            '=': 0x49, ']': 0x4A, '\\': 0x50,
+            'backspace': 0x4F, 'enter': 0x51, 'rshift': 0x4C,
+            'fn': 0x41, 'rctrl': 0x47,
+            'home': 0x55, 'del': 0x56, 'pgup': 0x57, 'pgdn': 0x58,
+            'up': 0x52, 'left': 0x4D, 'down': 0x53, 'right': 0x59
         }
 
         # Load state from config file if exists
