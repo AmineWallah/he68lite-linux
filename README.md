@@ -1,6 +1,6 @@
 # HE68Lite Linux
 ## About
-**!! STILL IN VERY EARLY DEVELOPMENT, I AM NOT RESPONSIBLE FOR ANY KEYBOARDS FRYING AND HOUSES CATHCING FIRE !!**
+**!! STILL IN VERY EARLY DEVELOPMENT !!**
 
 Basic linux driver to interact with the Epomaker HE68 Lite keyboard considering there is no native driver for it out there.
 
