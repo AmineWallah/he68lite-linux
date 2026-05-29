@@ -117,7 +117,7 @@ class HE68Lite:
         self.speed = max(0, min(4, level))
         self._send_update()
 
-    def set_key_actuation(self, key_name, distance_mm, save=True):
+    def set_key_actuation(self, key_name, distance_mm, save=True): # Faulty (check readme.md)
         key_name = str(key_name).lower()
         if key_name not in self.KEYS:
             print(f"Invalid key name: {key_name}")
@@ -160,7 +160,7 @@ class HE68Lite:
 
         print(f"Set '{key_name.upper()}' to {safe_distance}mm")
 
-    def set_keyboard_actuation(self, distance_mm):
+    def set_keyboard_actuation(self, distance_mm): # Faulty (check readme.md)
         # Set actuation for all keys simultaneously
         for key in self.KEYS:
             self.set_key_actuation(key, distance_mm, save=False)

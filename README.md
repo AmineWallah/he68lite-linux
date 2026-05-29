@@ -52,3 +52,6 @@ python3 main.py (--flags)
 11. `kill_two_birds`
 12. `circle_wave`
 13. `snow_trace`
+
+## Known issues
+- The actuation/actuation-all flags are not working properly for a good portion of the keys (will remap the key ID dictionary soon enough)
