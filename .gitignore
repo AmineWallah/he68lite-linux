@@ -55,3 +55,4 @@ out/
 # macOS
 .DS_Store
 todo.md
+parse_thing.py

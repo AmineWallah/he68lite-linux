@@ -75,9 +75,6 @@ def main():
         except ValueError:
             print(f"Error: The distance '{args.actuation[1]}' is not a valid number.")
 
-    if args.actuation_all is not None:
-        keyboard.set_keyboard_actuation(args.actuation_all)
-
     keyboard.close()
 
 

@@ -34,7 +34,6 @@ python3 main.py (--flags)
 | **`--mode`** | `name` or `1-13` | Sets the lighting effect. You can pass the exact text name (e.g., `ripple`) or its corresponding ID number (1 through 13). | `--mode 3` <br> `--mode starlight` |
 | **`--rainbow`** | *None* | A toggle switch that forces the current animation to cycle through RGB colors automatically instead of using a static color. | `--mode wave --rainbow` |
 | **`--actuation`** | `KEY MM` | Sets the magnetic actuation distance for a specific key. Distance can range from `0.1` to `4.0` millimeters. | `--actuation w 1.5` |
-| **`--actuation-all`** | `MM` | Sets the magnetic actuation distance for all keys simultaneously. Distance can range from `0.1` to `4.0` millimeters. | `--actuation-all 2.0` |
 | **`--list-keys`** | *None* | Prints a neatly formatted list of all valid key names that can be used with the `--actuation` flag. | `python3 main.py --list-keys` |
 | **`-h`, `--help`** | *None* | Prints the help menu to the terminal, including the exact syntax and the 1-13 cheat sheet for all available modes. | `python3 main.py --help` |
 
